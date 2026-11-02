@@ -50,8 +50,10 @@ function fmtTime(time){if(!time)return '';const [h,m]=time.split(':').map(Number
 function esc(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function snapshot(m){return {id:m.id,name:m.name,dose:m.dose||'',note:m.note||'',time:m.time||'09:00'}}
 function ensureTodayPlan(){
-  const key=dateKey();state.dailyPlans[key]??={};let changed=false;
-  for(const med of state.medicines.filter(isToday)) if(!state.dailyPlans[key][med.id]){state.dailyPlans[key][med.id]=snapshot(med);changed=true}
+  const key=dateKey();const todays=state.medicines.filter(isToday);let changed=false;
+  if(!todays.length){if(state.dailyPlans[key]&&!Object.keys(state.dailyPlans[key]).length&&!Object.keys(state.log[key]||{}).length){delete state.dailyPlans[key];changed=true}if(changed)save();return}
+  state.dailyPlans[key]??={};
+  for(const med of todays) if(!state.dailyPlans[key][med.id]){state.dailyPlans[key][med.id]=snapshot(med);changed=true}
   if(changed)save();
 }
 function dailyQuote(){
@@ -87,12 +89,12 @@ function render(){
   const list=todays.filter(m=>filter==='all'||(filter==='taken'?isTaken(m.id):!isTaken(m.id))).sort((a,b)=>a.time.localeCompare(b.time));
   $('medList').innerHTML=list.map(m=>`<article class="med-card ${isTaken(m.id)?'taken':''}"><div class="med-symbol" aria-hidden="true">✳</div><div class="med-copy"><div class="med-title">${esc(m.name)}</div><div class="med-details">${esc(m.dose||'Medicine')}${m.note?` · ${esc(m.note)}`:''}</div><div class="med-time"><i class="dot"></i>${fmtTime(m.time)} · ${isTaken(m.id)?'Taken':'Scheduled'}</div></div><div class="card-actions"><button class="check-button" data-take="${esc(m.id)}" aria-label="${isTaken(m.id)?'Mark not taken':'Mark taken'}: ${esc(m.name)}">${isTaken(m.id)?'✓':'○'}</button><button class="edit-button" data-edit="${esc(m.id)}" aria-label="Edit ${esc(m.name)}">···</button></div></article>`).join('');
   $('emptyState').classList.toggle('hidden',todays.length!==0);
-  $('historyCount').textContent=Object.keys(state.dailyPlans).filter(k=>k<=dateKey()).length;
+  $('historyCount').textContent=Object.keys(state.dailyPlans).filter(k=>k<=dateKey()&&(Object.keys(state.dailyPlans[k]||{}).length||Object.keys(state.log[k]||{}).length)).length;
   if(view==='history')renderHistory();
   checkReminders();
 }
 function renderHistory(){
-  const dates=new Set([...Object.keys(state.dailyPlans),...Object.keys(state.log)]);const ordered=[...dates].filter(k=>k<=dateKey()).sort((a,b)=>b.localeCompare(a));
+  const dates=new Set([...Object.keys(state.dailyPlans),...Object.keys(state.log)]);const ordered=[...dates].filter(k=>k<=dateKey()&&(Object.keys(state.dailyPlans[k]||{}).length||Object.keys(state.log[k]||{}).length)).sort((a,b)=>b.localeCompare(a));
   $('historyList').innerHTML=ordered.map(key=>{
     const plan=state.dailyPlans[key]||{};const log=state.log[key]||{};const items={...plan};
     for(const id of Object.keys(log))if(!items[id]){const med=state.medicines.find(x=>x.id===id);items[id]=med?snapshot(med):{id,name:'Medicine',time:''}}
