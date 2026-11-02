@@ -3,25 +3,34 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#f7f7f2">
+  <meta name="theme-color" content="#f7f7f2" id="themeColor">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <title>Little Dose — your medicine, gently</title>
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="extras.css">
 </head>
 <body>
   <main class="app-shell">
     <header class="topbar">
       <a class="brand" href="#" aria-label="Little Dose home"><span class="brand-icon">✳</span><span>little dose<span class="period">.</span></span></a>
       <button class="date-pill" id="dateLabel" aria-label="Today"></button>
+      <button class="theme-button" id="themeButton" aria-label="Toggle dark mode">☾</button>
       <button class="avatar" id="profileButton" aria-label="Personal settings">♡</button>
     </header>
 
+    <nav class="view-tabs" aria-label="App pages"><button class="view-tab active" id="todayTab">Today</button><button class="view-tab" id="historyTab">History <span id="historyCount">0</span></button></nav>
+
+    <div id="todayView">
     <section class="greeting">
-      <div class="greeting-copy"><p class="eyebrow">A little care, each day</p><h1>Good morning<span id="greetingName"></span><span class="period">.</span></h1><p class="subhead" id="greetingSub">Let’s make today feel a little easier.</p></div>
+      <div class="greeting-copy"><p class="eyebrow">A little care, each day</p><h1><span id="greetingTitle">Good morning</span><span id="greetingName"></span><span class="period">.</span></h1><p class="subhead" id="greetingSub">Let’s make today feel a little easier.</p></div>
       <div class="sun-art" aria-hidden="true"><span>✦</span><i></i><b>✳</b></div>
     </section>
+
+    <section class="quote-card"><span class="quote-mark">“</span><div><p class="eyebrow">A THOUGHT FOR TODAY</p><p class="quote-text" id="dailyQuote"></p></div><span class="quote-spark">✦</span></section>
+
+    <section class="companion-card"><div class="capy-wrap"><svg viewBox="0 0 120 86" role="img" aria-label="A cute capybara companion"><ellipse cx="60" cy="52" rx="43" ry="25" fill="#b9794d"/><ellipse cx="82" cy="42" rx="24" ry="21" fill="#c68a5c"/><ellipse cx="100" cy="46" rx="10" ry="8" fill="#aa6844"/><circle cx="75" cy="36" r="2.7" fill="#2d3028"/><ellipse cx="82" cy="23" rx="7" ry="9" fill="#aa6844"/><ellipse cx="84" cy="24" rx="3.5" ry="5" fill="#e1a178"/><path d="M88 48q4 4 8 0" fill="none" stroke="#553c31" stroke-width="2" stroke-linecap="round"/><ellipse cx="44" cy="72" rx="8" ry="4" fill="#85553c"/><ellipse cx="78" cy="72" rx="8" ry="4" fill="#85553c"/><path d="M27 34c-8-8-5-20 1-24 2 9 8 11 9 19" fill="#769465"/><path d="M28 33c4-5 7-9 8-15" fill="none" stroke="#f5f1d8" stroke-width="2"/><path d="M29 33l-3-10 8 5 8-7-3 11" fill="#f0d786"/><circle cx="28" cy="31" r="4" fill="#e7b4c4"/><circle cx="37" cy="31" r="4" fill="#e7b4c4"/><circle cx="33" cy="29" r="3" fill="#f8df9a"/></svg></div><div class="companion-copy"><p class="eyebrow">YOUR LITTLE BUDDY</p><strong>Cappy is cheering you on</strong><p id="companionLine">Small steps are still steps. You’re doing great.</p></div><span class="companion-heart">♡</span></section>
 
     <section class="progress-card" aria-label="Today's progress">
       <div class="progress-top"><div><span class="eyebrow">TODAY’S PLAN</span><h2><span id="doneCount">0</span> of <span id="totalCount">0</span> taken</h2></div><div class="progress-flower" id="progressFlower">✿</div></div>
@@ -37,6 +46,10 @@
     </section>
 
     <section class="care-note"><span class="note-icon">♡</span><div><strong>A gentle reminder</strong><p>Follow the directions from your doctor or pharmacist. Little Dose helps you keep track; it can’t advise on doses.</p></div></section>
+    </div>
+
+    <section class="history-section hidden" id="historyView"><div class="section-heading"><div><p class="eyebrow">YOUR RECENT DAYS</p><h2>Past checklists</h2></div><button class="button quiet" id="exportButton">Export backup</button></div><p class="history-intro">Taken marks and saved checklists stay on this device.</p><div id="historyList" class="history-list"></div><div id="historyEmpty" class="empty-state hidden"><div class="empty-flower">✿</div><h3>Nothing in history yet</h3><p>Once you add medicines and use today’s checklist, each saved day will appear here.</p></div></section>
+
     <footer>Made with care, just for you <span>✳</span><button id="privacyButton">Privacy & reminders</button></footer>
   </main>
 
@@ -52,7 +65,7 @@
     </form>
   </dialog>
 
-  <dialog class="dialog compact" id="privacyDialog"><div class="dialog-head"><div><p class="eyebrow">YOUR PERSONAL SPACE</p><h2>Privacy & reminders</h2></div><button type="button" class="close" data-close="privacyDialog" aria-label="Close">×</button></div><div class="privacy-copy"><p><strong>Your information stays on this device.</strong> Your medicines and taken history are saved in this browser’s local storage. There are no accounts or shared profiles.</p><p><strong>About iPhone reminders.</strong> Add this page to your Home Screen to use it like an app. iPhone web notifications require the installed app and your permission; this standalone version cannot guarantee scheduled alerts when iOS has closed it. Keep your usual alarms or reminder system as a backup.</p><button class="button outline full" id="notifyButton" type="button">Enable notifications</button><button class="button quiet full" id="installHelp" type="button">How to add to Home Screen</button><button class="button quiet full" id="clearData" type="button">Clear all medicines and history</button></div></dialog>
+  <dialog class="dialog compact" id="privacyDialog"><div class="dialog-head"><div><p class="eyebrow">YOUR PERSONAL SPACE</p><h2>Privacy & reminders</h2></div><button type="button" class="close" data-close="privacyDialog" aria-label="Close">×</button></div><div class="privacy-copy"><p><strong>Your information stays on this device.</strong> Your medicines and taken history are saved in this browser’s local storage. There are no accounts or shared profiles.</p><p><strong>Reminders.</strong> Enable alerts to get a reminder while Little Dose is open. This static app cannot deliver scheduled alerts when iOS has closed it; keep your usual iPhone alarms as a backup.</p><button class="button outline full" id="notifyButton" type="button">Enable reminders</button><button class="button outline full" id="exportSettings" type="button">Download a data backup</button><button class="button quiet full" id="installHelp" type="button">How to add to Home Screen</button><button class="button quiet full" id="clearData" type="button">Clear all medicines and history</button></div></dialog>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <script src="app.js"></script>
 </body>
