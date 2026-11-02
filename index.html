@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f7f7f2">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>Little Dose — your medicine, gently</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="Little Dose home"><span class="brand-icon">✳</span><span>little dose<span class="period">.</span></span></a>
+      <button class="date-pill" id="dateLabel" aria-label="Today"></button>
+      <button class="avatar" id="profileButton" aria-label="Personal settings">♡</button>
+    </header>
+
+    <section class="greeting">
+      <div class="greeting-copy"><p class="eyebrow">A little care, each day</p><h1>Good morning<span id="greetingName"></span><span class="period">.</span></h1><p class="subhead" id="greetingSub">Let’s make today feel a little easier.</p></div>
+      <div class="sun-art" aria-hidden="true"><span>✦</span><i></i><b>✳</b></div>
+    </section>
+
+    <section class="progress-card" aria-label="Today's progress">
+      <div class="progress-top"><div><span class="eyebrow">TODAY’S PLAN</span><h2><span id="doneCount">0</span> of <span id="totalCount">0</span> taken</h2></div><div class="progress-flower" id="progressFlower">✿</div></div>
+      <div class="progress-track"><span id="progressBar"></span></div>
+      <p id="progressNote">One step at a time. You’ve got this.</p>
+    </section>
+
+    <section class="schedule-section">
+      <div class="section-heading"><div><p class="eyebrow">YOUR ROUTINE</p><h2>Today’s medicines</h2></div><button class="add-button" id="addButton" aria-label="Add a medicine">＋</button></div>
+      <div class="filter-row" role="tablist" aria-label="Filter medicines"><button class="filter active" data-filter="all">All <span id="allCount">0</span></button><button class="filter" data-filter="upcoming">To take <span id="upcomingCount">0</span></button><button class="filter" data-filter="taken">Taken</button></div>
+      <div class="med-list" id="medList"></div>
+      <div class="empty-state hidden" id="emptyState"><div class="empty-flower">✿</div><h3>A fresh start</h3><p>Add a medicine to see your routine here.</p><button class="button primary" id="emptyAdd">Add your first medicine</button></div>
+    </section>
+
+    <section class="care-note"><span class="note-icon">♡</span><div><strong>A gentle reminder</strong><p>Follow the directions from your doctor or pharmacist. Little Dose helps you keep track; it can’t advise on doses.</p></div></section>
+    <footer>Made with care, just for you <span>✳</span><button id="privacyButton">Privacy & reminders</button></footer>
+  </main>
+
+  <dialog class="dialog" id="medicineDialog">
+    <form id="medicineForm" method="dialog">
+      <div class="dialog-head"><div><p class="eyebrow">YOUR ROUTINE</p><h2 id="formTitle">Add a medicine</h2></div><button type="button" class="close" data-close="medicineDialog" aria-label="Close">×</button></div>
+      <input type="hidden" id="medicineId">
+      <label>Medicine name<input id="medName" required maxlength="60" placeholder="e.g. Vitamin D" autocomplete="off"></label>
+      <div class="form-row"><label>Amount / instructions<input id="medDose" maxlength="60" placeholder="e.g. 1 tablet"></label><label>Time<input id="medTime" type="time" required value="09:00"></label></div>
+      <label>Optional note<input id="medNote" maxlength="100" placeholder="Take with breakfast"></label>
+      <fieldset><legend>Repeat on</legend><div class="days" id="dayPicker"></div></fieldset>
+      <div class="dialog-actions"><button class="button quiet hidden" type="button" id="deleteMedicine">Delete</button><span></span><button class="button outline" type="button" data-close="medicineDialog">Cancel</button><button class="button primary" type="submit">Save medicine</button></div>
+    </form>
+  </dialog>
+
+  <dialog class="dialog compact" id="privacyDialog"><div class="dialog-head"><div><p class="eyebrow">YOUR PERSONAL SPACE</p><h2>Privacy & reminders</h2></div><button type="button" class="close" data-close="privacyDialog" aria-label="Close">×</button></div><div class="privacy-copy"><p><strong>Your information stays on this device.</strong> Your medicines and taken history are saved in this browser’s local storage. There are no accounts or shared profiles.</p><p><strong>About iPhone reminders.</strong> Add this page to your Home Screen to use it like an app. iPhone web notifications require the installed app and your permission; this standalone version cannot guarantee scheduled alerts when iOS has closed it. Keep your usual alarms or reminder system as a backup.</p><button class="button outline full" id="notifyButton" type="button">Enable notifications</button><button class="button quiet full" id="installHelp" type="button">How to add to Home Screen</button><button class="button quiet full" id="clearData" type="button">Clear all medicines and history</button></div></dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
