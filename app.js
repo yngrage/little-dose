@@ -49,4 +49,7 @@ $('notifyButton').onclick=async()=>{if(!('Notification'in window)){showToast('No
 $('installHelp').onclick=()=>showToast(/iPhone|iPad/.test(navigator.userAgent)?'In Safari: Share → Add to Home Screen.':'Use your browser menu to install or add this page to your Home Screen.');
 $('clearData').onclick=()=>{if(confirm('Delete all medicines and taken history from this device?')){state={medicines:[],log:{},name:''};save();render();$('privacyDialog').close();showToast('Your local data was cleared.')}};
 render();
+// Refresh the displayed day and its checklist after midnight, even if the app
+// stays open. The date-keyed log keeps each day's taken marks separate.
+setInterval(render, 60_000);
 if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./sw.js').catch(()=>{});
