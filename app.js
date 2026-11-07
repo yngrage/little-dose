@@ -35,9 +35,9 @@ const $ = id => document.getElementById(id);
 function loadState(){
   try {
     const old=JSON.parse(localStorage.getItem(STORE))||{};
-    return {medicines:[],log:{},name:'',dailyPlans:{},quoteByDate:{},usedQuotes:[],remindersEnabled:false,remindersSent:{},theme:'dark',...old,
-      medicines:Array.isArray(old.medicines)?old.medicines:[],log:old.log||{},dailyPlans:old.dailyPlans||{},quoteByDate:old.quoteByDate||{},usedQuotes:old.usedQuotes||[],remindersSent:old.remindersSent||{},theme:old.theme||'dark'};
-  } catch { return {medicines:[],log:{},name:'',dailyPlans:{},quoteByDate:{},usedQuotes:[],remindersEnabled:false,remindersSent:{},theme:'dark'}; }
+    return {medicines:[],log:{},manualLogs:{},name:'',dailyPlans:{},quoteByDate:{},usedQuotes:[],remindersEnabled:false,remindersSent:{},theme:'dark',...old,
+      medicines:Array.isArray(old.medicines)?old.medicines:[],log:old.log||{},manualLogs:old.manualLogs||{},dailyPlans:old.dailyPlans||{},quoteByDate:old.quoteByDate||{},usedQuotes:old.usedQuotes||[],remindersSent:old.remindersSent||{},theme:old.theme||'dark'};
+  } catch { return {medicines:[],log:{},manualLogs:{},name:'',dailyPlans:{},quoteByDate:{},usedQuotes:[],remindersEnabled:false,remindersSent:{},theme:'dark'}; }
 }
 function save(){try{localStorage.setItem(STORE,JSON.stringify(state))}catch{showToast('Storage is full. Export a backup or remove old data.')}}
 function dateKey(date=new Date()){return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`}
@@ -90,6 +90,7 @@ function render(){
   const list=todays.filter(m=>filter==='all'||(filter==='taken'?isTaken(m.id):!isTaken(m.id))).sort((a,b)=>a.time.localeCompare(b.time));
   $('medList').innerHTML=list.map(m=>`<article class="med-card ${isTaken(m.id)?'taken':''}"><div class="med-symbol" aria-hidden="true">✳</div><div class="med-copy"><div class="med-title">${esc(m.name)}</div><div class="med-details">${esc(m.dose||'Medicine')}${m.note?` · ${esc(m.note)}`:''}</div><div class="med-time"><i class="dot"></i>${fmtTime(m.time)} · ${isTaken(m.id)?'Taken':'Scheduled'}</div></div><div class="card-actions"><button class="check-button" data-take="${esc(m.id)}" aria-label="${isTaken(m.id)?'Mark not taken':'Mark taken'}: ${esc(m.name)}">${isTaken(m.id)?'✓':'○'}</button><button class="edit-button" data-edit="${esc(m.id)}" aria-label="Edit ${esc(m.name)}">···</button></div></article>`).join('');
   $('emptyState').classList.toggle('hidden',todays.length!==0);
+  $('pastDosePrompt').classList.toggle('hidden',state.medicines.length===0);
   $('historyCount').textContent=[...new Set([...Object.keys(state.dailyPlans),...Object.keys(state.log)])].filter(k=>k<=dateKey()&&hasHistory(k)).length;
   if(view==='history')renderHistory();
   checkReminders();
@@ -101,7 +102,7 @@ function renderHistory(){
     for(const id of Object.keys(log))if(!items[id]){const med=state.medicines.find(x=>x.id===id);items[id]=med?snapshot(med):{id,name:'Medicine',time:''}}
     const entries=Object.values(items).sort((a,b)=>(a.time||'').localeCompare(b.time||''));const done=entries.filter(m=>Boolean(log[m.id])).length;
     const date=formatDate(dateFromKey(key),{weekday:'long',month:'short',day:'numeric',year:'numeric'});
-    const details=entries.length?entries.map(m=>`<div class="history-item"><span class="history-status ${log[m.id]?'':'missed'}">${log[m.id]?'✓':'·'}</span><span class="history-med"><strong>${esc(m.name)}</strong><small>${fmtTime(m.time)}${m.dose?` · ${esc(m.dose)}`:''}</small></span><span>${log[m.id]?'Taken':'Not marked'}</span></div>`).join(''):'<div class="history-empty-day">No medicines were scheduled in this checklist.</div>';
+    const details=entries.length?entries.map(m=>{const manualTime=state.manualLogs[key]?.[m.id];const timeLabel=manualTime?`Taken at ${fmtTime(manualTime)}`:fmtTime(m.time);return `<div class="history-item"><span class="history-status ${log[m.id]?'':'missed'}">${log[m.id]?'✓':'·'}</span><span class="history-med"><strong>${esc(m.name)}</strong><small>${timeLabel}${m.dose?` · ${esc(m.dose)}`:''}</small></span><span>${log[m.id]?'Taken':'Not marked'}</span></div>`}).join(''):'<div class="history-empty-day">No medicines were scheduled in this checklist.</div>';
     return `<article class="history-day"><div class="history-day-head"><strong>${esc(date)}</strong><span>${done} of ${entries.length} taken</span></div>${details}</article>`;
   }).join('');
   $('historyEmpty').classList.toggle('hidden',ordered.length>0);
@@ -111,17 +112,34 @@ function openForm(m){
   $('medicineForm').reset();$('medicineId').value=m?.id||'';$('formTitle').textContent=m?'Edit medicine':'Add a medicine';$('medName').value=m?.name||'';$('medDose').value=m?.dose||'';$('medNote').value=m?.note||'';$('medTime').value=m?.time||'09:00';
   $('deleteMedicine').classList.toggle('hidden',!m);document.querySelectorAll('.day-chip').forEach(b=>b.classList.toggle('selected',m?(m.days||[]).includes(+b.dataset.day):true));$('medicineDialog').showModal();
 }
+function openPastDoseForm(){
+  if(!state.medicines.length){showToast('Add a medicine to your routine first.');return}
+  $('pastDoseMedicine').innerHTML=state.medicines.map(m=>`<option value="${esc(m.id)}">${esc(m.name)}</option>`).join('');
+  const now=new Date();$('pastDoseDate').value=dateKey(now);$('pastDoseDate').max=dateKey(now);$('pastDoseTime').value=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  $('pastDoseDialog').showModal();
+}
 WEEK.forEach((d,i)=>{const b=document.createElement('button');b.type='button';b.className='day-chip selected';b.dataset.day=i;b.textContent=d;b.setAttribute('aria-pressed','true');b.onclick=()=>{b.classList.toggle('selected');b.setAttribute('aria-pressed',b.classList.contains('selected'))};$('dayPicker').appendChild(b)});
 $('addButton').onclick=$('emptyAdd').onclick=()=>openForm();
+$('pastDoseButton').onclick=openPastDoseForm;
 document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>$(b.dataset.close).close());
 document.querySelectorAll('.filter').forEach(b=>b.onclick=()=>{filter=b.dataset.filter;document.querySelectorAll('.filter').forEach(x=>x.classList.toggle('active',x===b));render()});
 $('todayTab').onclick=()=>setView('today');$('historyTab').onclick=()=>setView('history');
 $('themeButton').onclick=()=>{state.theme=state.theme==='dark'?'light':'dark';save();setTheme()};
 $('medList').addEventListener('click',e=>{
-  const take=e.target.closest('[data-take]');if(take){const id=take.dataset.take;state.log[dateKey()]??={};if(state.log[dateKey()][id]){delete state.log[dateKey()][id];showToast('Marked as not taken.')}else{state.log[dateKey()][id]=Date.now();showToast('Marked taken. You did it ✿')}save();render();return}
+  const take=e.target.closest('[data-take]');if(take){const id=take.dataset.take;state.log[dateKey()]??={};if(state.log[dateKey()][id]){delete state.log[dateKey()][id];if(state.manualLogs[dateKey()])delete state.manualLogs[dateKey()][id];showToast('Marked as not taken.')}else{state.log[dateKey()][id]=Date.now();showToast('Marked taken. You did it ✿')}save();render();return}
   const edit=e.target.closest('[data-edit]');if(edit)openForm(state.medicines.find(m=>m.id===edit.dataset.edit));
 });
 $('medicineForm').addEventListener('submit',e=>{e.preventDefault();const days=[...document.querySelectorAll('.day-chip.selected')].map(b=>+b.dataset.day);if(!days.length){showToast('Choose at least one day.');return}const id=$('medicineId').value||crypto.randomUUID();const medicine={id,name:$('medName').value.trim(),dose:$('medDose').value.trim(),note:$('medNote').value.trim(),time:$('medTime').value,days};const index=state.medicines.findIndex(m=>m.id===id);if(index<0)state.medicines.push(medicine);else state.medicines[index]=medicine;save();$('medicineDialog').close();render();showToast(index<0?'Medicine added to your routine.':'Medicine updated.')});
+$('pastDoseForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const id=$('pastDoseMedicine').value,key=$('pastDoseDate').value,time=$('pastDoseTime').value;
+  const med=state.medicines.find(m=>m.id===id);if(!med||!key||!time){showToast('Choose a medicine, date, and time.');return}
+  if(key>dateKey()){showToast('Choose today or an earlier date.');return}
+  const takenAt=new Date(`${key}T${time}:00`).getTime();if(!Number.isFinite(takenAt)||takenAt>Date.now()){showToast('Choose a time that has already passed.');return}
+  if(state.log[key]?.[id]){showToast('This medicine is already marked taken for that day.');return}
+  state.dailyPlans[key]??={};state.dailyPlans[key][id]??=snapshot(med);state.log[key]??={};state.log[key][id]=takenAt;state.manualLogs[key]??={};state.manualLogs[key][id]=time;
+  save();$('pastDoseDialog').close();render();showToast('Past dose added to History.');
+});
 $('deleteMedicine').onclick=()=>{const id=$('medicineId').value;state.medicines=state.medicines.filter(m=>m.id!==id);save();$('medicineDialog').close();render();showToast('Medicine removed. Past checklists are kept.')};
 $('privacyButton').onclick=$('profileButton').onclick=()=>$('privacyDialog').showModal();
 function downloadBackup(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`little-dose-backup-${dateKey()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);showToast('Backup downloaded to this device.')}
@@ -150,7 +168,7 @@ function checkReminders(){
   }
 }
 $('installHelp').onclick=()=>showToast(/iPhone|iPad/.test(navigator.userAgent)?'In Safari: Share → Add to Home Screen.':'Use your browser menu to install or add this page to your Home Screen.');
-$('clearData').onclick=()=>{if(confirm('Delete all medicines and taken history from this device?')){const theme=state.theme;state={medicines:[],log:{},name:'',dailyPlans:{},quoteByDate:{},usedQuotes:[],remindersEnabled:false,remindersSent:{},theme};save();render();$('privacyDialog').close();showToast('Your local data was cleared.')}};
+$('clearData').onclick=()=>{if(confirm('Delete all medicines and taken history from this device?')){const theme=state.theme;state={medicines:[],log:{},manualLogs:{},name:'',dailyPlans:{},quoteByDate:{},usedQuotes:[],remindersEnabled:false,remindersSent:{},theme};save();render();$('privacyDialog').close();showToast('Your local data was cleared.')}};
 render();
 setInterval(()=>{render();checkReminders()},30_000);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){render();checkReminders()}});
