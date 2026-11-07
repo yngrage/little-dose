@@ -43,6 +43,7 @@
       <div class="filter-row" role="tablist" aria-label="Filter medicines"><button class="filter active" data-filter="all">All <span id="allCount">0</span></button><button class="filter" data-filter="upcoming">To take <span id="upcomingCount">0</span></button><button class="filter" data-filter="taken">Taken</button></div>
       <div class="med-list" id="medList"></div>
       <div class="empty-state hidden" id="emptyState"><div class="empty-flower">✿</div><h3>A fresh start</h3><p>Add a medicine to see your routine here.</p><button class="button primary" id="emptyAdd">Add your first medicine</button></div>
+      <div class="past-dose-prompt hidden" id="pastDosePrompt"><span>Already took a dose but forgot to log it?</span><button class="button quiet" id="pastDoseButton" type="button">Log a past dose</button></div>
     </section>
 
     <section class="care-note"><span class="note-icon">♡</span><div><strong>A gentle reminder</strong><p>Follow the directions from your doctor or pharmacist. Little Dose helps you keep track; it can’t advise on doses.</p></div></section>
@@ -62,6 +63,16 @@
       <label>Optional note<input id="medNote" maxlength="100" placeholder="Take with breakfast"></label>
       <fieldset><legend>Repeat on</legend><div class="days" id="dayPicker"></div></fieldset>
       <div class="dialog-actions"><button class="button quiet hidden" type="button" id="deleteMedicine">Delete</button><span></span><button class="button outline" type="button" data-close="medicineDialog">Cancel</button><button class="button primary" type="submit">Save medicine</button></div>
+    </form>
+  </dialog>
+
+  <dialog class="dialog compact" id="pastDoseDialog">
+    <form id="pastDoseForm" method="dialog">
+      <div class="dialog-head"><div><p class="eyebrow">YOUR HISTORY</p><h2>Log a past dose</h2></div><button type="button" class="close" data-close="pastDoseDialog" aria-label="Close">×</button></div>
+      <p class="past-dose-note">Only record a dose already taken as directed. This adds it to History and won’t change the medicine schedule.</p>
+      <label>Medicine<select id="pastDoseMedicine" required></select></label>
+      <div class="form-row"><label>Date taken<input id="pastDoseDate" type="date" required></label><label>Time taken<input id="pastDoseTime" type="time" required></label></div>
+      <div class="dialog-actions"><span></span><button class="button outline" type="button" data-close="pastDoseDialog">Cancel</button><button class="button primary" type="submit">Save to history</button></div>
     </form>
   </dialog>
 
