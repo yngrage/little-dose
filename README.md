@@ -10,6 +10,7 @@ The live app is hosted on GitHub Pages. On iPhone, open it in Safari, tap **Shar
 
 - Add medicines with amount/instructions, notes, a time, and selected weekdays.
 - A daily checklist with per-day taken marks and a progress summary.
+- Log a dose you already took but forgot to record, with its date and time; it appears in History without changing the routine.
 - Past checklists, with medicine names and instructions saved as snapshots for each day the app is opened.
 - Dark mode, time-based greetings, and a daily encouragement selected without repeats until the quote collection cycles.
 - A small animated capybara companion.
