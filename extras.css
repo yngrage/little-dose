@@ -42,3 +42,11 @@ body.dark .quote-card{background:linear-gradient(120deg,#292a22,#28271f);border-
 body.dark .history-day-head span{color:#a4d1aa}body.dark .history-item{border-color:#303b35}body.dark .history-status{background:#2a3c2c;color:#a5d0aa}body.dark .history-status.missed{background:#403126;color:#e0af83}
 body.dark .theme-button{background:#25322a;color:#f3d691;border-color:#3b4d40}body.dark footer{color:#87968a}body.dark .dialog{background:#1a211e;border-color:#37443b;color:#edf0eb}body.dark .dialog h2,body.dark .privacy-copy strong{color:#e7ede6}body.dark .dialog label,body.dark .dialog legend{color:#c0cec1}body.dark .dialog input{background:#111715;border-color:#3a473d;color:#edf0eb}body.dark .dialog input::placeholder{color:#859186}body.dark .dialog .button.outline{background:#202a24;border-color:#3d4d40;color:#c2d5c3}body.dark .privacy-copy,body.dark .privacy-copy p{color:#abb7ab}body.dark .button.quiet{color:#a4b0a5}
 @media(max-width:430px){.topbar{gap:6px}.brand{gap:6px;font-size:13px;white-space:nowrap;flex:none}.brand>span:last-child{white-space:nowrap;flex:none}.brand-icon{width:25px;height:25px;flex:none}.date-pill{padding:6px 7px;font-size:9px;flex:none}.theme-button,.avatar{width:30px;height:30px;flex:none}}
+.past-dose-prompt{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:11px 0 0;padding:10px 12px;border:1px dashed var(--line);border-radius:11px;color:var(--muted);font-size:10px}
+.past-dose-prompt .button{flex:none;padding:8px 10px}
+.past-dose-note{margin:0 0 12px;color:var(--muted);font-size:11px;line-height:1.55}
+.dialog select{display:block;width:100%;margin-top:6px;padding:11px;border:1px solid #e4e7dd;border-radius:9px;background:white;font:400 12px 'DM Sans';color:var(--ink);outline-color:#7f9d7b}
+body.dark .past-dose-prompt{border-color:var(--line);color:var(--muted)}
+body.dark .past-dose-note{color:#abb7ab}
+body.dark .dialog select{background:#111715;border-color:#3a473d;color:#edf0eb}
+@media(max-width:430px){.past-dose-prompt{align-items:flex-start;flex-direction:column}}
